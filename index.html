@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>飞机大战</title>
+    <style>
+        /*现阶段使用:*/
+
+        html,
+        body,
+        div,
+        span,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p,
+        a,
+        pre,
+        del,
+        em,
+        img,
+        ins,
+        kbd,
+        q,
+        samp,
+        small,
+        strong,
+        sub,
+        sup,
+        var,
+        b,
+        i,
+        dl,
+        dt,
+        dd,
+        ol,
+        ul,
+        li,
+        form,
+        table,
+        caption,
+        tbody,
+        input,
+        tfoot,
+        thead,
+        tr,
+        th,
+        td {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        li {
+            list-style: none;
+        }
+
+        a {
+            color: #000;
+            background: transparent;
+            text-decoration: none;
+            outline-style: none;
+        }
+
+        input {
+            border: 0 none;
+            vertical-align: middle;
+        }
+
+        /*css为clearfix，清除浮动*/
+        .clearfix::before,
+        .clearfix::after {
+            content: "";
+            display: block;
+        }
+
+        .clearfix:after {
+            clear: both;
+        }
+
+        .clearfix {
+            *zoom: 1;
+        }
+
+        /* 最外层大盒子 */
+        #box {
+            position: relative;
+            width: 500px;
+            height: 800px;
+            margin: 0 auto;
+            background-color: #ccc;
+        }
+
+        /* 游戏盒子 */
+        #game {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url(./img/bg_1.jpg);
+            overflow: hidden;
+        }
+
+        /* 我方飞机 */
+        #plane {
+            position: absolute;
+            top: 700px;
+            left: 225px;
+            width: 50px;
+            height: 40px;
+            background: url(./img/plane_1.png);
+            background-size: contain;
+        }
+
+        /* 子弹 */
+        .bullet {
+            position: absolute;
+            width: 12px;
+            height: 20px;
+            background: url(./img/fire.png);
+            background-size: 100% 100%;
+        }
+
+        .enemysmall {
+            position: absolute;
+            width: 50px;
+            height: 40px;
+            background: url(./img/enemy_small.png);
+            background-size: 100% 100%;
+        }
+
+        .enemybig {
+            position: absolute;
+            width: 120px;
+            height: 80px;
+            background: url(./img/enemy_big.png);
+            background-size: 100% 100%;
+        }
+
+        .img {
+            position: absolute;
+        }
+
+        #moshi {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+        }
+
+        #moshi h1 {
+            width: 100%;
+            margin: 100px auto;
+            font-size: 40px;
+            color: red;
+        }
+
+        #moshi div {
+            width: 200px;
+            height: 35px;
+            background-color: red;
+            font-size: 25px;
+            line-height: 35px;
+            margin: 50px auto;
+            cursor: pointer;
+        }
+
+        #moshi div:hover {
+            background-color: #ccc;
+        }
+
+        #chongkai {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        #chongkai h2 {
+            cursor: pointer;
+            width: 200px;
+            height: 50px;
+            font-size: 30px;
+            text-align: center;
+            line-height: 50px;
+            background-color: red;
+            margin: 400px auto;
+        }
+
+        #chongkai h2:hover {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="box">
+        <div id="game">
+            <div id="plane" hp="5" style="display: none"></div>
+        </div>
+        <div id="moshi">
+            <h1>飞机大战 v1.2.0.1</h1>
+            <div class="moshi1">简单模式</div>
+            <div class="moshi2">普通模式</div>
+            <div class="moshi3">地狱模式</div>
+            <div class="moshi4">终极vip15模式</div>
+        </div>
+        <div id="chongkai">
+            <h2 id="chongkai1">重新开始</h2>
+        </div>
+    </div>
+</body>
+
+<script>
+    var box = document.getElementById('box');                   // 最外大盒子
+    var game = document.getElementById('game');                 // 游戏盒子
+    var planehp = parseInt(plane.getAttribute('hp'));           // 我方飞机的血量
+    var chongkai = document.getElementById('chongkai');         // 重开按钮
+    var chongkai1 = document.getElementById('chongkai1');         // 重开按钮
+    var moshi = document.getElementById('moshi');               // 模式选择大盒子
+    var moshi1 = document.getElementsByClassName('moshi1')[0];  // 简单模式
+    var moshi2 = document.getElementsByClassName('moshi2')[0];  // 一般模式
+    var moshi3 = document.getElementsByClassName('moshi3')[0];  // 地狱模式
+    var moshi4 = document.getElementsByClassName('moshi4')[0];  // vip15模式
+    // 重新开始按钮----------------------------------------------------------------
+    chongkai1.onclick = function () {
+        planehp = 5;
+        chongkai.style.display = 'none';
+        moshi.style.display = 'block';
+    }
+    // 点击模式事件----------------------------------------------------------------------
+    moshi1.onclick = function () {
+        var x = 0;
+        kaishi(x);
+    }
+    moshi2.onclick = function () {
+        var x = 1;
+        kaishi(x);
+        game.style.backgroundImage = 'url(./img/bg_2.jpg)';
+    }
+    moshi3.onclick = function () {
+        var x = 2;
+        kaishi(x);
+        game.style.backgroundImage = 'url(./img/bg_3.jpg)';
+    }
+    moshi4.onclick = function () {
+        var x = 3;
+        kaishi(x);
+        game.style.backgroundImage = 'url(./img/bg_4.jpg)';
+    }
+    // 根据点击的模式开始游戏
+    function kaishi(x) {
+        var indexD = [10000, 5000, 700, 1000][x];                                          // 生成大敌军的间隔(5s)
+        var indexX = [1000, 1000, 400, 500][x];                                          // 生成小敌军的间隔(1s)
+        var indexZ = [200, 150, 100, 50][x];                                             // 生成子弹的间隔
+        moshi.style.display = 'none';                                // 模式选择影藏
+        plane.style.display = 'block';                               // 我方飞机显示
+        kbullet(indexZ);
+        kenemyX(indexX);
+        kenemyD(indexD);
+    }
+    // 生成子弹-----------------------------------------------------
+    function kbullet(indexZ) {
+        var timeID = setInterval(function () {
+            bullet();
+            if (planehp <= 0) {
+                clearInterval(timeID);
+            }
+        }, indexZ)                                                     // indexZ ms生成一颗子弹
+    }
+    // 生成小敌军---------------------------------------------------------
+    function kenemyX(indexX) {
+        var timeID1 = setInterval(function () {
+            var lei = 'enemysmall';     // className
+            var w = 50;                 // 宽
+            var h = 40;                 // 高
+            var hp = 2;                 // HP
+            enemy(lei, w, h, hp);
+            if (planehp <= 0) {
+                clearInterval(timeID1);
+            }
+        }, indexX)                      // 生成间隔
+    }
+    // 生成大敌军-------------------------------------------------------------
+    function kenemyD(indexD) {
+        var timeID2 = setInterval(function () {
+            var lei = 'enemybig';       // className
+            var w = 120;                // 宽
+            var h = 80;                 // 高
+            var hp = 5;                 // HP
+            enemy(lei, w, h, hp);
+            if (planehp <= 0) {
+                clearInterval(timeID2);
+            }
+        }, indexD)                      // 生成间隔
+    }
+    // 我方飞机跟随鼠标移动---------------------------------------------------------
+    box.onmousemove = function (e) {
+        e = e || window.event;
+        var x = e.pageX;
+        var y = e.pageY;
+        x = x - box.offsetLeft - plane.offsetWidth / 2;
+        y = y - box.offsetTop - plane.offsetHeight / 2;
+        x = x < 0 ? 0 : x;
+        x = x > 450 ? 450 : x;
+        y = y < 0 ? 0 : y;
+        y = y > 760 ? 760 : y;
+        plane.style.left = x + 'px';
+        plane.style.top = y + 'px';
+    }
+    // 创建子弹函数--------------------------------------------------------------------
+    function bullet() {
+        var bullet = document.createElement('div');
+        var currentx = plane.offsetLeft + 19;
+        var currenty = plane.offsetTop - 20;
+        var speed = 15;                                 // 子弹每次移动距离
+        bullet.className = 'bullet';
+        bullet.style.left = currentx + 'px';
+        bullet.style.top = currenty + 'px';
+        game.appendChild(bullet);
+        // 子弹开始移动
+        bullet.time = setInterval(function () {
+            currenty -= speed;
+            bullet.style.top = currenty + 'px';
+        }, 30)
+    }
+    // 创建敌军函数-----------------------------------------------------------------------
+    function enemy(lei, w, h, hp) {
+        var x = Math.floor(Math.random() * (game.offsetWidth - w));     // 随机生成敌方x轴初始位置
+        var y = -h;
+        var enemy = document.createElement('div');
+        enemy.style.left = x + 'px';
+        enemy.style.top = y + 'px';
+        enemy.className = lei;
+        enemy.hp = hp;
+        game.appendChild(enemy);
+        var speed = 3 + Math.random() * 5;                              // 敌军移动速度
+        enemy.time = setInterval(function () {
+            y += speed;
+            enemy.style.top = y + 'px';
+        }, 30)
+    }
+    // 碰撞检测函数封装------------------------------------------------------------------
+
+    function crash(ele, ele1) {
+        // 碰撞处理后
+        function peng(hp) {
+            ele.hp = hp;
+            if (ele.hp <= 0) {                                      //  敌军hp<0
+                // 敌军死亡的时候创建一个img标签放爆炸图片
+                var img = document.createElement('img');
+                img.src = ele.offsetWidth < 51 ? './img/boom_small.png' : './img/boom_big.png';
+                img.className = 'img';
+                img.style.width = ele.offsetWidth + 'px';
+                img.style.height = ele.oofsetHeight + 'px';
+                img.style.left = ele.offsetLeft + 'px';
+                img.style.top = ele.offsetTop + 'px';
+                game.appendChild(img);                              // img爆炸图片添加到游戏
+                game.removeChild(ele);                              // 移除敌军
+                // 定时一秒后清除这个img
+                setTimeout(function () {
+                    game.removeChild(img);
+                }, 400)
+            }
+        }
+        // 获取敌军位置
+        var T = ele.offsetTop;
+        var L = ele.offsetLeft;
+        var R = L + ele.offsetWidth;
+        var B = T + ele.offsetHeight;
+        // 获取我方位置
+        var FT = plane.offsetTop;
+        var FL = plane.offsetLeft;
+        var FR = FL + plane.offsetWidth;
+        var FB = FT + plane.offsetHeight;
+        // 获取子弹位置
+        var zT = ele1.offsetTop;
+        var zL = ele1.offsetLeft;
+        var zB = zT + ele1.offsetHeight;
+        var zR = zL + ele1.offsetWidth;
+        var zidan = zR < L || zL > R || zB < T || zT > B;
+        var feiji = FR < L || FL > R || FB < T || FT > B;
+        // 子弹跟敌军碰撞
+        if (!zidan) {
+            game.removeChild(ele1);                     //  如果子弹碰到敌军  移除子弹
+            ele.hp--;                                   //  敌军hp-1
+            peng(ele.hp);
+        }
+        var chaoping = ele.offsetTop;               // 获取         敌军定位
+        if (chaoping >= 800) {                      // 超过屏幕的   敌军移除
+            game.removeChild(ele);
+        }
+        var chaoping = ele1.offsetTop;             // 获取定位
+        if (chaoping < 0) {                        // 超过屏幕的  子弹移除
+            game.removeChild(ele1);
+        }
+        // 我方跟敌军碰撞
+        if (!feiji) {
+            planehp--;                                  // 我方给你的血量-1
+            peng(0);                                    // 我方飞机撞到敌方飞机,敌方直接炸机
+            if (planehp == 0) {
+                plane.style.display = 'none';
+                alert('游戏结束');
+                chongkai.style.display = 'block';
+                return;                                 // 不执行下面闪烁代码
+            }
+            // 模拟我方飞机闪烁动画
+            var j = 0;
+            var timeID4 = setInterval(function () {
+                plane.style.display = 'none';
+                j++;
+                setTimeout(function () {
+                    plane.style.display = 'block';
+                }, 100)
+                if (j >= 4) {
+                    clearInterval(timeID4);
+                }
+            }, 200)
+        }
+    }
+    // 碰撞检测----------------------------------------------------------------------------
+    var timeID3 = setInterval(function () {
+        var enemysmall = document.getElementsByClassName('enemysmall');     // 获取所有小敌军
+        var enemybig = document.getElementsByClassName('enemybig');         // 获取所有大敌军
+        var bullet = document.getElementsByClassName('bullet');             // 获取所有子弹
+        for (var i = 0; i < bullet.length; i++) {
+            for (var j = 0; j < enemysmall.length; j++) {
+                var kg = crash(enemysmall[j], bullet[i]);                            // 调用碰撞检测函数(敌军/子弹)
+            }
+            for (var j = 0; j < enemybig.length; j++) {
+                var kg = crash(enemybig[j], bullet[i]);                              // 调用碰撞检测函数(敌军/子弹)
+            }
+        }
+    }, 50)
+
+</script>
+
+</html>
